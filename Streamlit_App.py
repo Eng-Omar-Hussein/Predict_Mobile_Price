@@ -4,10 +4,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 
 #Set page configuration for the webpage
 st.set_page_config(page_title="Smartphone Price Predictor", page_icon="📱", layout="centered")
 #import the datasets and the trained model
+db0=pd.read_csv("python-project/GG.csv")
 db1 = pd.read_csv('phone_data.csv')
 db2 = pd.read_csv("dfAfterCleaning.csv")
 pipe = pk.load(open("trained_model.pkl", "rb"))
@@ -81,7 +83,29 @@ with tab1:
         link = f'https://www.amazon.eg/s?k={title}'
         return link
     
-    #insert predictButton functionality
+    #insert statsButton & predictButton functionality
+    if statsButton:
+    	st.subheader("Statistics:")
+    	cat = []
+    	con = []
+
+    	for i in db2.columns:
+        	if db2[i].nunique() <= 9 and db2[i].nunique() > 2 or i=='category_column':
+               		cat.append(i)
+       		else:
+               		con.append(i)
+
+    	option = st.selectbox('How would you like to be presented?', ('Line Chart', 'Area Chart', 'chart3'))
+    	if option == "Line Chart":
+    		for i in cat:
+    			st.line_chart(db2[f"{i}"], y=i)
+    	elif option == "Area Chart":
+    		for i in cat:
+    			st.area_chart(db2[f"{i}"], y=i)
+    	else:
+        	st.error(option)
+
+	
     if predictButton:
         #make a query array and pass it to the model to predict the price
         query = np.array([storageSelected, ramSelected, camSelected, batterySelected, incheSeleted, widthSelected, heightSelected])
@@ -107,7 +131,7 @@ with tab1:
         phones['Link'] = phones['title'].apply(add_links)
         #Display the recommended smartphones DataFrame in HTML table
         phones = phones.to_html(index=False, justify='center', render_links=True)
-        st.write(phones, unsafe_allow_html=True)
+        st.write(phones, unsafe_allow_html=True)   
 with tab2:
     #Insert information about the project
     st.subheader("About Our Smartphone Price Prediction Project")
