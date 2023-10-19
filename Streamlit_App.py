@@ -3,13 +3,12 @@ import pickle as pk
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
+
 
 #Set page configuration for the webpage
 st.set_page_config(page_title="Smartphone Price Predictor", page_icon="📱", layout="centered")
 #import the datasets and the trained model
-db0=pd.read_csv("python-project/GG.csv")
+
 db1 = pd.read_csv('phone_data.csv')
 db2 = pd.read_csv("dfAfterCleaning.csv")
 pipe = pk.load(open("trained_model.pkl", "rb"))
@@ -25,6 +24,7 @@ inches = sorted(db2['Inches'].unique(), key=float)
 battery = sorted(db2['Battery'].unique(), key=int)
 cam = sorted(db2['Front Camera'].unique(), key=int)
 OS = ['Android', 'iOS', 'Another OS']
+char=['Price distribution','Categorically','Continuously']
 #Deploy the tabs
 with tab1:
     st.header("Price Prediction")
@@ -52,6 +52,17 @@ with tab1:
         camSelected = st.selectbox("Select Front Camera (in mp)", cam)
         OSSelected = st.selectbox("Select Operating System", OS)
 
+    col1, col2, col3 = st.columns([1,1,1])
+    
+    # Within the first column
+    with col1:
+        pass
+    with col2:
+        chartSelect = st.selectbox("Set Chart type", char)
+    # Display the selected OS
+    with col3:
+        pass
+    
     #Insert buttons for the user to predict the price and display the statistics
     col1, col2, col3, col4  = st.columns([1,1,1,1], gap="small")
     with col1:
@@ -85,27 +96,39 @@ with tab1:
     
     #insert statsButton & predictButton functionality
     if statsButton:
-    	st.subheader("Statistics:")
-    	cat = []
-    	con = []
-
-    	for i in db2.columns:
-        	if db2[i].nunique() <= 9 and db2[i].nunique() > 2 or i=='category_column':
-               		cat.append(i)
-       		else:
-               		con.append(i)
-
-    	option = st.selectbox('How would you like to be presented?', ('Line Chart', 'Area Chart', 'chart3'))
-    	if option == "Line Chart":
-    		for i in cat:
-    			st.line_chart(db2[f"{i}"], y=i)
-    	elif option == "Area Chart":
-    		for i in cat:
-    			st.area_chart(db2[f"{i}"], y=i)
-    	else:
-        	st.error(option)
-
-	
+        
+        cat = []
+        con = []    
+        for i in db2.columns:
+            if db2[i].nunique() <= 9 and db2[i].nunique() > 2 or i=='category_column':
+                cat.append(i)
+            else:
+                con.append(i)      
+        if str(chartSelect)==char[0]:
+            st.subheader("Line Chart (Price distribution)")
+            st.divider()
+            st.line_chart(
+            db1['price in EGY'].value_counts(),
+            y='price in EGY'
+            ) 
+        elif str(chartSelect)==char[1]:
+            st.subheader("Bar Chart (Categorically)")
+            st.divider()
+            for i in cat:    
+                st.bar_chart(db2[f"{i}"].value_counts(),y=i)   
+        else:
+            st.subheader("Bar Chart (Continuously)")
+            st.divider()
+            for i in ['OS','Brand','title','Front Camera','Inches','Resolutions']:
+                st.bar_chart(db1[f"{i}"].value_counts(),y=i)  
+        
+        # for i in cat:
+        #     # st.bar_chart(db2[f"{i}"][0:100], y=i)
+        #     st.subheader(i+"_hist")
+        #     fig, ax = plt.subplots()
+        #     ax.hist(db2[f"{i}"], bins=20)  
+        #     st.pyplot(fig) 
+        #     
     if predictButton:
         #make a query array and pass it to the model to predict the price
         query = np.array([storageSelected, ramSelected, camSelected, batterySelected, incheSeleted, widthSelected, heightSelected])
