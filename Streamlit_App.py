@@ -52,7 +52,7 @@ with tab1:
         camSelected = st.selectbox("Select Front Camera (in mp)", cam)
         OSSelected = st.selectbox("Select Operating System", OS)
 
-    col1, col2, col3 = st.columns([1,1,1])
+    col1, col2, col3 = st.columns([1,2,1])
     
     # Within the first column
     with col1:
@@ -64,7 +64,7 @@ with tab1:
         pass
     
     #Insert buttons for the user to predict the price and display the statistics
-    col1, col2, col3, col4  = st.columns([1,1,1,1], gap="small")
+    col1, col2, col3, col4  = st.columns([1,1,1,0.8], gap="small")
     with col1:
         pass
     with col2:
